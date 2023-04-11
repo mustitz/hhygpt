@@ -1,6 +1,6 @@
 import vim
 
-from gpt import default as gpt
+from gpt import default as gpt, GptError
 
 
 class MyException(Exception):
@@ -43,5 +43,5 @@ def entry(cmd):
     try:
         args = str(cmd).split()
         execute(args)
-    except MyException as e:
+    except (MyException, GptError) as e:
         set_error(e)
