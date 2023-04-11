@@ -22,6 +22,31 @@ def ss(s):
         return 'None'
     return str(s)
 
+def get_text_for_completion(lines, line_num, tokens=4096, new_lines=True):
+    l, qchars, rresult, extra = line_num, 0, [], []
+    while True:
+        l -= 1
+        if l < 0:
+            rresult += extra
+            break
+        if l >= len(lines):
+            break
+        line = lines[l].rstrip()
+        qchars += len(line)
+        if 1.0 * qchars >= 2.5 * tokens:
+            break
+        if not new_lines:
+            rresult.append(line)
+            continue
+        if line == '':
+            rresult += extra
+            rresult.append('')
+            extra = []
+        else:
+            extra.append(line)
+
+    return list(reversed(rresult))
+
 def best_text_nn(models):
     if not models:
         return None
