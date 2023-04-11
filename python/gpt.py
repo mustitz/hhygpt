@@ -22,6 +22,13 @@ def ss(s):
         return 'None'
     return str(s)
 
+def get_text(text):
+    if isinstance(text, str):
+        return text.strip()
+    if isinstance(text, bytes):
+        return text.descode('utf-8').strip()
+    return '\n'.join(text).strip()
+
 def get_text_for_completion(lines, line_num, tokens=4096, new_lines=True):
     l, qchars, rresult, extra = line_num, 0, [], []
     while True:
@@ -86,6 +93,20 @@ class GptAgent:
         if response.status_code != 200:
             error(f"Invalid status code {response.status_code}")
         return json.loads(response.content)
+
+    def complete_text(self, text,
+            *, max_tokens=128, temperature=0.1):
+
+        data = {
+            'prompt': get_text(text),
+            'model': self.best_text_nn,
+            'max_tokens': max_tokens,
+            'temperature': temperature,
+        }
+
+        content = self.query('completions', data)
+        proposition = content['choices'][0]['text']
+        return proposition.split('\n')
 
     @staticmethod
     def get_api_key():
