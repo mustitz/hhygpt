@@ -1,9 +1,13 @@
 import json
 import os
+import re
 import requests
 
 
 API_URL = 'https://api.openai.com/v1'
+
+BEST_TEXT_NN_PATTERNS = [ r'^text-davinci-[0-9]+$', 'text-davinci', 'text', 'davinci' ]
+BEST_TEXT_NN_REGEXPS = [ re.compile(regexp) for regexp in BEST_TEXT_NN_PATTERNS ]
 
 
 class GptError(Exception):
@@ -18,11 +22,28 @@ def ss(s):
         return 'None'
     return str(s)
 
+def best_text_nn(models):
+    if not models:
+        return None
+    candidates = models[:]
+
+    def try_regexp(candidates, regexp):
+        filtered = [ m for m in candidates if regexp.match(m) ]
+        if filtered:
+            candidates[:] = filtered
+
+    for regexp in BEST_TEXT_NN_REGEXPS:
+        try_regexp(candidates, regexp)
+
+    candidates.sort()
+    return candidates[-1]
+
 
 class GptAgent:
     def __init__(self):
         self._api_key = None
         self._models = []
+        self._best_text_nn = None
 
     def query(self, endpoint, data=None):
         url = f"{API_URL}/{endpoint}"
@@ -78,9 +99,31 @@ class GptAgent:
             self.update_models()
         return self._models
 
+    def get_best_text_nn(self):
+        return best_text_nn(self.models)
+
+    def update_best_text_nn(self):
+        best_text_nn = self.get_best_text_nn()
+        if best_text_nn:
+            self._best_text_nn = best_text_nn
+        return self._best_text_nn
+
+    @property
+    def best_text_nn(self):
+        if self._best_text_nn is None:
+            self.update_best_text_nn()
+        return self._best_text_nn
+
+    @best_text_nn.setter
+    def best_text_nn(self, value):
+        if value not in models:
+            error(f"The model {value} not in model list.")
+        self._best_text_nn = value
+
     def print_status(self):
         print('Hhy Gpt Plugin status:')
         print('  ApiKey =', ss(self.api_key))
+        print('  TextNN =', ss(self.best_text_nn))
 
 
 default = GptAgent()
