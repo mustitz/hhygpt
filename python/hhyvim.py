@@ -1,5 +1,7 @@
 import vim
 
+from gpt import default as gpt
+
 
 class MyException(Exception):
     pass
@@ -19,7 +21,7 @@ def empty():
 def status(args):
     if len(args) != 0:
         error('status command has no args')
-    print('Hhy Gpt Plugin status:')
+    gpt.print_status()
 
 commands = {
     'status': status,
