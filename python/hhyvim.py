@@ -1,6 +1,7 @@
 import vim
 
 from gpt import default as gpt, GptError
+from gpt import get_text_for_completion
 
 
 class MyException(Exception):
@@ -23,8 +24,21 @@ def status(args):
         error('status command has no args')
     gpt.print_status()
 
+def complete(args):
+    if len(args) != 0:
+        error('complete command has no args')
+
+    buf = vim.current.buffer[:]
+    l, c = vim.current.window.cursor
+
+    text = get_text_for_completion(buf, l)
+    insertion = gpt.complete_text(text)
+    insertion.append('<' * 42)
+    vim.current.buffer[l:l] = insertion
+
 commands = {
-    'status': status,
+    'complete' : complete,
+    'status'   : status,
 }
 
 def execute(args):
