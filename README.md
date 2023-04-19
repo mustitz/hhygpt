@@ -24,3 +24,8 @@ Prints current plugin settings.
 Provides text/code completion from GPT network.
 The whole current line is included to GPT prompt.
 A mark line with `<<<`s is added at the end of the completion.
+
+`GPT ask <question>`
+Just ask GPT for completion without any context by using the only text `<question>` after the command `ask`.
+The output will be printed on a screen.
+It is possible to show it again by using `:messages`.
