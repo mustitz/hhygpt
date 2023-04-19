@@ -36,8 +36,17 @@ def complete(args):
     insertion.append('<' * 42)
     vim.current.buffer[l:l] = insertion
 
+def ask(args):
+    if len(args) == 0:
+        error('Please, type a question after ask')
+
+    text = ' '.join(args)
+    for line in gpt.complete_text(text, max_tokens=2048):
+        print(line)
+
 commands = {
     'complete' : complete,
+    'ask' :      ask,
     'status'   : status,
 }
 
